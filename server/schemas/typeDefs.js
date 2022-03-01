@@ -21,10 +21,7 @@ const typeDefs = gql `
     type Query {
         me: User
     }
-    type Auth {
-        token: ID!
-        user: User
-    }
+    
     input SavedBookInput {
         authors: [String]
         description: String 
@@ -39,7 +36,10 @@ const typeDefs = gql `
         saveBook(book: SavedBookInput): User
         deleteBook(bookId: String!): User
     }
-
+    type Auth {
+        token: ID!
+        user: User
+    }
 `;
 
 module.exports = typeDefs; 
