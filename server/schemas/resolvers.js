@@ -6,7 +6,7 @@ const resolvers = {
     Query: { 
         me: async (parent, args, context) => {
             if (context.user) {
-                const userData = await User.findOne({ _id: context.user_id })
+                const userData = await User.findOne({ _id: context.user._id })
                 .select('-__v -password')
                 return userData;
             }
@@ -14,7 +14,8 @@ const resolvers = {
         } 
     },
     Mutation: {
-        addUser: async (parent, args) => {
+        createUser: async (parent, args) => {
+            console.log(args);
             const user = await User.create(args);
             const token = signToken(user);
 
@@ -22,7 +23,7 @@ const resolvers = {
         },
 
         login: async (parent, { email, password }) => {
-            const user = await User.findOne( { email });
+            const user = await User.findOne({ email });
             if (!user) {
                 throw new AuthenticationError('Incorrect Credentials')
             }
@@ -39,7 +40,7 @@ const resolvers = {
                 const updateUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
                     { $addToSet: {savedBooks: book} },
-                    { new: true }
+                    { new: true, runValidators: true}
                 ) 
                 return updateUser;
             }

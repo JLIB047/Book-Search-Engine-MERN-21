@@ -69,13 +69,13 @@ const SearchBooks = () => {
     if (!token) {
       return false;
     }
-    
+    console.log(bookToSave)
     try {
       await saveBook({
-        variables: {book: bookToSave},
+        variables: { ...bookToSave},
         update: cache => {
           const {me} = cache.readQuery({ query: GET_ME });
-          cache.writeQuert({ query: GET_ME , data: {me: {...me, savedBooks: [...me.savedBooks, bookToSave] } } })
+          cache.writeQuery({ query: GET_ME , data: {me: {...me, savedBooks: [...me.savedBooks, bookToSave] } } })
         }
       });
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
