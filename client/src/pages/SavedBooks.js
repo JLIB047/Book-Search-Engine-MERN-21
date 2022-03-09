@@ -9,8 +9,10 @@ import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
+  console.log(data);
   const [deleteBook] = useMutation(REMOVE_BOOK);
-  const userData = data?.me || {};
+  const userData = data?.me || [];
+  console.log(userData);
 
   if(!userData?.username){
     return (
@@ -26,30 +28,26 @@ const SavedBooks = () => {
     if(!token) {
       return false;
     }
- 
 
-  try{
-    await deleteBook({
-      variables: {bookId: bookId},
-      update: cache => {
-        const data = cache.readQuery({ query: GET_ME });
-        const userDataCache = data.me;
-        const savedBooksCache = userDataCache.savedBooks;
-        const updatedBookCache = savedBooksCache.filter((book) => book.bookId !== bookId);
-        data.me.savedBooks = updatedBookCache;
-        cache.writeQuery({ query: GET_ME , data: {data: {...data.me.savedBooks}}})
-      }
-    });
-    // upon success, remove book's id from localStorage
-    removeBookId(bookId);
-  } catch (err) {
-    console.log(err);
-  }
- };
+
+    try{
+    const {data} = await deleteBook({
+         variables: { bookId }
+       });
+
+       removeBookId(bookId);
+     } catch (err) {
+       console.log(err);
+     }
+  };
+
  //if data isnt here yet, say so 
  if (loading) {
    return <h2>LOADING...</h2>
  }
+
+//  const savedBookIds = userData.savedBooks.map((book) => book.bookId);
+//  saveBookIds(savedBookIds);
 
   return (
     <>
@@ -61,11 +59,12 @@ const SavedBooks = () => {
       <Container>
         <h2>
           {userData.savedBooks.length
-            ? `Viewing ${userData.savedBooks.length} saved ${userData.savedBooks.length === 1 ? 'book' : 'books'}:`
+            ? `Viewing ${userData.savedBooks.length} saved ${userData.savedBooks.length === 1 ? "book" : "books"}:`
             : 'You have no saved books!'}
         </h2>
         <CardColumns>
-          {userData.savedBooks.map((book) => {
+          {userData.savedBooks.map((book)=> {
+            console.log();
             return (
               <Card key={book.bookId} border='dark'>
                 {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
